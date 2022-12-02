@@ -1,7 +1,7 @@
 from django.shortcuts import render, get_object_or_404
 from django.http import HttpResponse, HttpResponseRedirect
 
-from session_manager.forms import LocationDataForm 
+from session_manager.forms import LocationDataForm
 from session_manager.models import Player, Session, LocationData
 
 # Create your views here.
@@ -28,7 +28,7 @@ def locdata(request):
             for i in range(len(times)):
                 lat, lon = locs[i].split(" ")
                 ld = LocationData.objects.create(timestamp=times[i], latitude=lat, longitude=lon)
-                locdata +=[ld]
+                locdata += [ld]
 
             player = None
             # if new player
@@ -50,8 +50,4 @@ def locdata(request):
         "form": form
     }
 
-
     return render(request, "session_manager/locdata.html", context)
-
-
-
