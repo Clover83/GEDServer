@@ -17,14 +17,10 @@ class LocationDataForm(forms.Form):
                 a = int(t)
             except:
                 raise ValidationError("Time list contains non int value")
-        if len(data) != len(self.cleaned_data['loc_list']):
-            raise ValidationError("Length of time list and location list differ")
         return data
 
     def clean_loc_list(self):
         data = self.cleaned_data['loc_list']
-        if len(data) != len(self.cleaned_data['time_list']):
-            raise ValidationError("Length of time list and location list differ")
         return data
 
 
