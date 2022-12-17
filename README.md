@@ -9,9 +9,9 @@ It is highly reccommended that you learn the basics of Docker and Docker Compose
 This project also assumes you are running on Linux, if you are running on another platform you may need to adjust the installation process to use equivalent commands.
 
 ### Running the development build
-To start the server, run `docker compose --file docker-compose.yml up --build --detach` inside the project directory.
+To start the server, run `docker compose --file docker-compose.yml up --build --detach` inside the project directory. This will require an internet connection as the dependencies need to be downloaded.
 
-The server can now be accessed on [localhost:8000](http://localhost:8000), send the post requests to [localhost:8000/locdata](http://localhost:8000/locdata). You can run `posttest.sh` to see server response. Be aware when implementing your own requests that you need to take the CSRF cookie into account.
+The server can now be accessed on [localhost:8000](http://localhost:8000), send the post requests to [localhost:8000/locdata](http://localhost:8000/locdata). You can edit and run `posttest.sh` (provided curl is installed) to see a programmatic example of how to send data to the server. Please note that a session has to be created first for you to be able to add to it this way.
 
 To stop the server use `docker compose --file docker-compose.yml down -v`, or alternatively without the `-v` argument to preserve database data.
 
