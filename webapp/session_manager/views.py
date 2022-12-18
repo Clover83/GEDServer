@@ -3,8 +3,10 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.contrib.auth import authenticate
 from django.core import serializers
 
+
 from session_manager.forms import LocationDataForm, AddSessionForm
 from session_manager.models import Player, Session, LocationData
+
 
 import json
 import random
@@ -60,7 +62,7 @@ def locdata(request):
 
 
 # Basically makes nesting work properly as
-# otherwise, player and location data would 
+# otherwise, player and location data would
 # only be referneced by index and not contian actual data.
 def get_json_from_session(s, pk):
     # Fix session json data
@@ -71,7 +73,7 @@ def get_json_from_session(s, pk):
 
     # Fix player json data
     del j["players"]
-    
+
     players_query = Player.objects.filter(session=pk)
     players_query = list(players_query)
     player_data = serializers.serialize("json", players_query)
@@ -108,8 +110,9 @@ def profile(request):
     if request.user.is_authenticated:
         context = {
             "session_list": Session.objects.all(),
-            "form":AddSessionForm()
+            "form": AddSessionForm()
         }
+
         if request.method == "POST":
             form = AddSessionForm(request.POST)
             if form.is_valid():
@@ -117,10 +120,10 @@ def profile(request):
                 s = Session(name=name, key=generate_random_key(20))
                 s.save()
                 HttpResponseRedirect('/')
-                
+
         elif request.method == "GET":
             pk = request.GET.get("download")
-            if pk != None:
+            if pk is not None:
                 s = Session.objects.filter(pk=pk)
                 if s:
                     json_str = get_json_from_session(s, pk)
@@ -130,7 +133,7 @@ def profile(request):
 
             else:
                 pk = request.GET.get("delete")
-                if pk != None:
+                if pk is not None:
                     s = Session.objects.filter(pk=pk).delete()
 
         return render(request, "session_manager/profile.html", context)

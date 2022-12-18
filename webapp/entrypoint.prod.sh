@@ -11,5 +11,9 @@ then
     echo "PostgreSQL started"
 fi
 
+# Not sure if this is a good idea in production,
+# but I can't think of a reason it wouldn't be.
+python manage.py makemigrations
+python manage.py migrate
 
 exec "$@"

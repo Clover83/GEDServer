@@ -2,6 +2,7 @@ from django.core.management.base import BaseCommand
 from django.utils import timezone
 from django.contrib.auth.models import User
 
+
 class Command(BaseCommand):
     help = 'Creates a user for /profile/'
 
