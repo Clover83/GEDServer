@@ -1,8 +1,14 @@
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render, get_object_or_404, redirect
 from django.http import HttpResponse, HttpResponseRedirect
+from django.contrib.auth import authenticate
+from django.core import serializers
 
-from session_manager.forms import LocationDataForm
+from session_manager.forms import LocationDataForm, AddSessionForm
 from session_manager.models import Player, Session, LocationData
+
+import json
+import random
+import string
 
 # Create your views here.
 
@@ -26,8 +32,8 @@ def locdata(request):
             player_query = Player.objects.filter(device_id=devid, session__key=seskey)
             locdata = []
             for i in range(len(times)):
-                lat, lon = locs[i].split(" ")
-                ld = LocationData.objects.create(timestamp=times[i], latitude=lat, longitude=lon)
+                x, y, z = locs[i].split(" ")
+                ld = LocationData.objects.create(timestamp=times[i], x=x, y=y, z=z)
                 locdata += [ld]
 
             player = None
@@ -51,3 +57,81 @@ def locdata(request):
     }
 
     return render(request, "session_manager/locdata.html", context)
+
+
+# Basically makes nesting work properly as
+# otherwise, player and location data would 
+# only be referneced by index and not contian actual data.
+def get_json_from_session(s, pk):
+    # Fix session json data
+    q = list(s)
+    json_str = serializers.serialize("json", q)
+    j = json.loads(json_str)
+    j = j[0]["fields"]
+
+    # Fix player json data
+    del j["players"]
+    
+    players_query = Player.objects.filter(session=pk)
+    players_query = list(players_query)
+    player_data = serializers.serialize("json", players_query)
+    player_data = json.loads(player_data)
+    j["playerData"] = []
+    for player in player_data:
+        # fix location data and finalize player fix
+        location_query = LocationData.objects.filter(player=player["pk"])
+        location_query = list(location_query)
+        location_data = serializers.serialize("json", location_query)
+        location_data = json.loads(location_data)
+
+        cleaned_locdata = []
+        for locdata in location_data:
+            cleaned_locdata += [locdata["fields"]]
+
+        player["fields"]["datapoints"] = cleaned_locdata
+        j["playerData"] += [player["fields"]]
+
+    json_str = json.dumps(j)
+    return json_str
+
+
+def generate_random_key(length):
+    palette = string.ascii_letters + string.digits
+    while True:
+        key = "".join([random.choice(palette) for i in range(length)])
+        search = Session.objects.filter(key=key)
+        if not search:
+            return key
+
+
+def profile(request):
+    if request.user.is_authenticated:
+        context = {
+            "session_list": Session.objects.all(),
+            "form":AddSessionForm()
+        }
+        if request.method == "POST":
+            form = AddSessionForm(request.POST)
+            if form.is_valid():
+                name = form.cleaned_data["name"]
+                s = Session(name=name, key=generate_random_key(20))
+                s.save()
+                HttpResponseRedirect('/')
+                
+        elif request.method == "GET":
+            pk = request.GET.get("download")
+            if pk != None:
+                s = Session.objects.filter(pk=pk)
+                if s:
+                    json_str = get_json_from_session(s, pk)
+                    response = HttpResponse(json_str, content_type="application/json")
+                    response["Content-Disposition"] = f"attachment; filename={s.first().name}.json"
+                    return response
+
+            else:
+                pk = request.GET.get("delete")
+                if pk != None:
+                    s = Session.objects.filter(pk=pk).delete()
+
+        return render(request, "session_manager/profile.html", context)
+    return redirect("login")
