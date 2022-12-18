@@ -22,3 +22,11 @@ class LocationDataForm(forms.Form):
     def clean_loc_list(self):
         data = self.cleaned_data['loc_list']
         return data
+
+
+class AddSessionForm(forms.Form):
+    name = forms.CharField(max_length=200)
+
+    def clean_name(self):
+        data = self.cleaned_data['name']
+        return str(data).strip()

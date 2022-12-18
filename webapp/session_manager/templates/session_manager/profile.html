@@ -1,0 +1,36 @@
+<h2>Session management</h2>
+
+<a target="_blank"
+  class="btn btn-info pull-right"
+  href="{% url 'logout' %}">
+  Log out
+</a>
+<ul>
+  {% for session in session_list %}
+  <li>{{session.name}}
+    <ul>
+      <li>key: {{session.key}}</li>
+      <li><a target="_self"
+          class="btn btn-info pull-right"
+          href="./?download={{session.pk|urlencode:''}}">Download data</a>
+      </li>
+      <li>
+        Pk: {{session.pk}}
+      </li>
+      <li>
+        <a target="_self"
+        class="btn btn-info pull-right"
+        href="./?delete={{session.pk|urlencode:''}}">
+        Delete all session data
+        </a>
+      </li>
+    </ul>
+  </li>
+  {% endfor %}
+</ul>
+<p>------</p>
+<form method="post">
+  {% csrf_token %}
+  {{form}}
+  <input type="submit" value="Submit">
+</form>

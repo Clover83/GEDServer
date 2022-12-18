@@ -5,11 +5,12 @@ from django.contrib.postgres.fields import ArrayField
 # Create your models here.
 class LocationData(models.Model):
     timestamp = models.CharField(max_length=20)
-    latitude = models.CharField(max_length=50)
-    longitude = models.CharField(max_length=50)
+    x = models.CharField(max_length=50)
+    y = models.CharField(max_length=50)
+    z = models.CharField(max_length=50)
 
     def __str__(self):
-        return f"{self.timestamp}: {self.longitude}, {self.latitude}"
+        return f"{self.timestamp}: {self.x}, {self.y}, {self.z}"
 
 
 class Player(models.Model):
